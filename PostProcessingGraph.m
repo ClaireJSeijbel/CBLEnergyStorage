@@ -1,6 +1,6 @@
 
 % Load the data from the file
-data = readtable('data100hz.txt', 'Delimiter', '\t');
+data = readtable('data100hz.txt', 'Delimiter', ',');
 
 % Extract the columns
 x = data.Var1;
