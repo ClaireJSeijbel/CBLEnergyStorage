@@ -1,0 +1,40 @@
+ the data from the file
+data = readtable('dataFlowSensor.txt', 'Delimiter', '\t');
+
+% Extract the columns
+x = data.Var1;
+y = data.Var2;
+
+% Calculate the mean of flow rate readings (original scale)
+average_flow_rate = mean(y);
+
+% Apply conversion factor to y-axis values and mean
+converted_y = (y * 5 / 1023) * 48.25;
+converted_average_flow_rate = (average_flow_rate * 5 / 1023) * 48.25;
+
+% Plot the converted data with a blue line
+plot(x, converted_y, 'b');
+hold on;  % This allows plotting multiple lines on the same figure
+
+% Plot the converted mean value as a red horizontal line
+plot(x, ones(size(x))*converted_average_flow_rate, 'r--');
+
+% Calculate the mean of the calibrated curve (offset applied)
+mean_calibrated_y = mean(converted_y) - 1.89;
+
+% Plot the mean calibrated curve (red dashed line)
+plot(x, ones(size(x))*mean_calibrated_y, 'b--');
+
+% Plot the calibrated curve with offset (green solid line)
+plot(x, converted_y - 1.89, 'g');  % Green solid line for calibrated curve
+
+% Label and title the plot (update y-axis label)
+xlabel('Steps');
+ylabel('Flow rate [L/min]');  
+title('Flow Sensor Readings (Converted)');
+grid on; % Optional, adds a grid to the plot
+legend('Converted Data', 'Converted Flow rate', ...
+       'Mean Calibrated Curve', 'Calibrated Curve');  
+
+% Set y-axis limits (optional, if needed)
+ylim([-2 220]);  % Adjust based onÂ yourÂ dataÂ range
