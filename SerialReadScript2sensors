@@ -1,0 +1,69 @@
+clear, close all, clc;
+%% txt file
+fileNameP1 = 'dataPressureSensor1.txt';    % enter name of file to write data to
+%%fileNameP2 = 'dataPressureSensor2.txt';    % enter name of file to write data to
+fileNameF = 'dataFlowSensor.txt';    % enter name of file to write data to
+conversionfactorP = 1
+conversionfactorF = 1
+
+
+fileIDP1 = fopen(fileNameP1,'w');
+%%fileIDP2 = fopen(fileNameP2,'w');
+fileIDF = fopen(fileNameF,'w');
+if fileIDP1 == -1
+    error('Failed to open %s', filenameP1);
+end
+
+%%if fileIDP2 == -1
+    %%error('Failed to open %s', fileNameP2);
+%%end
+
+if fileIDF == -1
+    error('Failed to open %s', filenameF);
+end
+%% setup serial port
+port = 'COM6';                  % set serial port where the arduino is connected (e.g. 'COM4' on Windows or '/dev/cu.usbmodem11101' on Mac OSX)
+baudRate = 9600;                % set baud rate to the same value as in the arduino script
+
+s = serialport(port,baudRate);
+%% GUI
+figure('Position',[500,500,170,200]);
+StopButtonHandle = uicontrol(   'Style', 'PushButton', ...
+                                'String', 'Stop', ...
+                                'Callback', 'delete(gcbf)',...
+                                'Position',[20,20,120,40]);
+
+uicontrol(   'Style', 'text', ...
+             'String', "reading data from serial port "+port, ...
+             'Position',[20,100,120,40]);
+%% read serial data and write to text file
+while true
+    try
+        SerialData = readline(s);
+        
+        data = split(SerialData, ',');
+        disp(data);
+        
+        timeStamp = str2double(data{1});
+        p1 = str2double(data{2});
+        %%p2 = str2double(data{3});
+        f = str2double(data{3});
+        
+
+        
+        % Write the parsed data to the individual files
+        fprintf(fileIDP1, '%d\t%f\n', timeStamp, p1);
+        %%fprintf(fileIDP2, '%d\t%f\n', timeStamp, p2);
+        fprintf(fileIDF, '%d\t%f\n', timeStamp, f);
+    end
+    if ~ishandle(StopButtonHandle)
+        disp('Reading serial data stopped by user');
+        break;
+    end
+end
+
+% Close all files
+fclose(fileIDP1);
+%%fclose(fileIDP2);
+fclose(fileIDF);
+disp("Serial data written to files");
